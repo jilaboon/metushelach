@@ -70,16 +70,14 @@ export function useAppModel() {
       return;
     }
 
-    if (validMoves.length === 0) {
+    if (validMoves.length === 0 && currentGame.deck.length === 0) {
       setMoveDeadline(null);
-      if (currentGame.deck.length === 0) {
-        const finished = finishGame(currentGame);
-        setCurrentGame(finished);
-        logEvent("game.finish.no_moves", {
-          deckRemaining: currentGame.deck.length,
-          piles: currentGame.piles.length,
-        });
-      }
+      const finished = finishGame(currentGame);
+      setCurrentGame(finished);
+      logEvent("game.finish.no_moves", {
+        deckRemaining: currentGame.deck.length,
+        piles: currentGame.piles.length,
+      });
       return;
     }
 
