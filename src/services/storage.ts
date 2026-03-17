@@ -21,7 +21,7 @@ export const defaultSettings: Settings = {
   musicEnabled: false,
   vibrationEnabled: false,
   reduceMotion: false,
-  clueMode: true,
+  clueMode: false,
   cardTheme: "classic",
   customCardBackUri: savtaCardBack,
 };
