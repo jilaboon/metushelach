@@ -148,7 +148,7 @@ function Results({ model }: { model: ReturnType<typeof useAppModel> }) {
   return (
     <div className="results-modal">
       <div className="results-card">
-        <h2>{model.currentGame.status === "won" ? he.won : he.finished}</h2>
+        <h2>{model.currentGame.status === "won" ? he.won : model.currentGame.status === "lost" ? he.lost : he.finished}</h2>
         <p>{model.performanceTier}</p>
         <strong>נשארו {model.currentGame.piles.length} ערימות</strong>
         <div className="results-actions">

@@ -151,14 +151,14 @@ export function getPerformanceTier(score: number) {
   return "עוד סיבוב קטן";
 }
 
-export function finishGame(state: GameState): GameState {
+export function finishGame(state: GameState, forcedStatus?: "won" | "finished" | "lost"): GameState {
   if (state.status !== "playing") {
     return state;
   }
 
   return {
     ...state,
-    status: state.piles.length === 1 ? "won" : "finished",
+    status: forcedStatus ?? (state.piles.length === 1 ? "won" : "finished"),
     finishedAt: Date.now(),
   };
 }

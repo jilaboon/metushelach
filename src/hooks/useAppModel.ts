@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   createNewGame,
   dealNextCard,
@@ -32,6 +32,7 @@ export function useAppModel() {
   const [stats, setStats] = useState<GameStats>(defaultStats);
   const [currentGame, setCurrentGame] = useState<GameState | null>(null);
   const [moveDeadline, setMoveDeadline] = useState<number | null>(null);
+  const lastTrackedFinishRef = useRef<number | null>(null);
 
   useEffect(() => {
     setSettings(loadSettings());
@@ -49,6 +50,17 @@ export function useAppModel() {
   useEffect(() => saveSettings(settings), [settings]);
   useEffect(() => saveStats(stats), [stats]);
   useEffect(() => saveGame(currentGame), [currentGame]);
+
+  useEffect(() => {
+    if (!currentGame || currentGame.status === "playing" || !currentGame.finishedAt) {
+      return;
+    }
+    if (lastTrackedFinishRef.current === currentGame.finishedAt) {
+      return;
+    }
+    lastTrackedFinishRef.current = currentGame.finishedAt;
+    void maybeTrackCompletion(currentGame);
+  }, [currentGame]);
 
   const validMoves = useMemo(() => (currentGame ? getValidMoves(currentGame.piles) : []), [currentGame]);
 
@@ -78,7 +90,7 @@ export function useAppModel() {
         if (!previous || previous.status !== "playing") {
           return previous;
         }
-        const finished = finishGame(previous);
+        const finished = finishGame(previous, "lost");
         logEvent("game.finish.timer_expired", {
           deckRemaining: previous.deck.length,
           piles: previous.piles.length,
@@ -92,6 +104,7 @@ export function useAppModel() {
 
   async function startNewGame() {
     const game = createNewGame();
+    lastTrackedFinishRef.current = null;
     setCurrentGame(game);
     setScreen("game");
     logEvent("game.start", { seed: game.seed });
@@ -154,6 +167,7 @@ export function useAppModel() {
 
   async function restartGame() {
     const next = createNewGame(`${Date.now()}`);
+    lastTrackedFinishRef.current = null;
     setCurrentGame(next);
     logEvent("game.restart", { seed: next.seed });
     setStats((previous) => ({ ...previous, totalGames: previous.totalGames + 1 }));
@@ -187,6 +201,7 @@ export function useAppModel() {
 
   function clearFinishedGame() {
     if (currentGame?.status !== "playing") {
+      lastTrackedFinishRef.current = null;
       setCurrentGame(null);
     }
   }

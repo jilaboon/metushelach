@@ -21,6 +21,7 @@ export const he = {
   canMoveBoth: "יש שתי אפשרויות חיבור פתוחות.",
   finished: "הסיבוב הסתיים",
   won: "ניצחת",
+  lost: "הפסדת",
   bravo: "כל הכבוד",
   tryAgain: "נסו שוב בעדינות",
   replay: "שחקו שוב",

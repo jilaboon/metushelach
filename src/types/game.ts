@@ -35,7 +35,7 @@ export type MoveRecord =
       previous: GameState;
     };
 
-export type GameStatus = "idle" | "playing" | "won" | "finished";
+export type GameStatus = "idle" | "playing" | "won" | "finished" | "lost";
 
 export type GameState = {
   seed: string;
