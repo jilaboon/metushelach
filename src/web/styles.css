@@ -287,7 +287,7 @@ body {
   background: transparent;
   color: inherit;
   display: grid;
-  gap: 10px;
+  gap: 8px;
   justify-items: center;
   transition: transform 220ms ease, opacity 220ms ease;
   transform-origin: center center;
@@ -314,7 +314,12 @@ body {
   width: 70px;
   height: 102px;
 }
-.pile-index { color: var(--muted); font-size: 0.9rem; }
+.pile-index {
+  min-height: 1em;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1;
+}
 .pile-enter {
   animation: pileEnter 320ms cubic-bezier(.2,.8,.25,1);
 }

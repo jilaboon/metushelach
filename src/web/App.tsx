@@ -339,7 +339,7 @@ function Game({ model }: { model: ReturnType<typeof useAppModel> }) {
                     type="button"
                     style={moving}
                   >
-                    <div className="pile-stack" style={{ height: `${80 + (pile.cards.length - 1) * 18}px` }}>
+                    <div className="pile-stack" style={{ height: `${102 + (pile.cards.length - 1) * 18}px` }}>
                       {pile.cards.map((card, cardIndex) => (
                         <div key={card.id} className="pile-card" style={{ top: `${cardIndex * 18}px` }}>
                           <CardFace rank={card.rank} suit={suitMap[card.suit]} />
