@@ -2,6 +2,7 @@ import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 import { he } from "../localization/he";
 import { useAppModel } from "../hooks/useAppModel";
 import { clearLogs, getLogs, installGlobalErrorLogging, logEvent } from "../services/logger";
+import savtaCardBack from "../../assets/savta-card-back.png";
 
 function CardFace({ rank, suit }: { rank: string; suit: string }) {
   const isRed = suit === "♥" || suit === "♦";
@@ -20,7 +21,7 @@ function CardBack() {
   return (
     <div className="card-back">
       <div className="card-back__portrait">
-        <img src="/assets/savta-card-back.png" alt="סבתא נמרודי" />
+        <img src={savtaCardBack} alt="סבתא נמרודי" />
       </div>
     </div>
   );
@@ -74,7 +75,7 @@ function Home({ model }: { model: ReturnType<typeof useAppModel> }) {
         </div>
         <div className="home-portrait" aria-hidden="true">
           <div className="home-portrait__frame">
-            <img src="/assets/savta-card-back.png" alt="סבתא נמרודי" />
+            <img src={savtaCardBack} alt="סבתא נמרודי" />
           </div>
         </div>
       </div>

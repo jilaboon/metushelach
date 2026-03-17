@@ -1,5 +1,6 @@
 import { GameState, GameStats, Settings } from "../types/game";
 import { logEvent } from "./logger";
+import savtaCardBack from "../../assets/savta-card-back.png";
 
 const memoryStore = new Map<string, string>();
 
@@ -22,7 +23,7 @@ export const defaultSettings: Settings = {
   reduceMotion: false,
   clueMode: true,
   cardTheme: "classic",
-  customCardBackUri: "/assets/savta-card-back.png",
+  customCardBackUri: savtaCardBack,
 };
 
 export const defaultStats: GameStats = {
