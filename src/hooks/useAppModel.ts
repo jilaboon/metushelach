@@ -32,7 +32,9 @@ export function useAppModel() {
   const [stats, setStats] = useState<GameStats>(defaultStats);
   const [currentGame, setCurrentGame] = useState<GameState | null>(null);
   const [moveDeadline, setMoveDeadline] = useState<number | null>(null);
+  const [paused, setPaused] = useState(false);
   const lastTrackedFinishRef = useRef<number | null>(null);
+  const pausedRemainingRef = useRef<number | null>(null);
 
   useEffect(() => {
     setSettings(loadSettings());
@@ -70,6 +72,11 @@ export function useAppModel() {
       return;
     }
 
+    if (paused) {
+      setMoveDeadline(null);
+      return;
+    }
+
     if (validMoves.length === 0 && currentGame.deck.length === 0) {
       setMoveDeadline(null);
       const finished = finishGame(currentGame);
@@ -81,7 +88,9 @@ export function useAppModel() {
       return;
     }
 
-    const deadline = Date.now() + 20000;
+    const duration = pausedRemainingRef.current ?? 20000;
+    pausedRemainingRef.current = null;
+    const deadline = Date.now() + duration;
     setMoveDeadline(deadline);
     const timeout = window.setTimeout(() => {
       setCurrentGame((previous) => {
@@ -98,11 +107,13 @@ export function useAppModel() {
     }, 20000);
 
     return () => window.clearTimeout(timeout);
-  }, [currentGame, validMoves]);
+  }, [currentGame, paused, validMoves]);
 
   async function startNewGame() {
     const game = createNewGame();
     lastTrackedFinishRef.current = null;
+    pausedRemainingRef.current = null;
+    setPaused(false);
     setCurrentGame(game);
     setScreen("game");
     logEvent("game.start", { seed: game.seed });
@@ -117,7 +128,7 @@ export function useAppModel() {
   }
 
   async function onDealCard() {
-    if (!currentGame) {
+    if (!currentGame || paused) {
       return;
     }
     const next = dealNextCard(currentGame);
@@ -132,7 +143,7 @@ export function useAppModel() {
   }
 
   async function onMove(fromIndex: number, toIndex: number) {
-    if (!currentGame) {
+    if (!currentGame || paused) {
       return;
     }
     const next = movePile(currentGame, fromIndex, toIndex);
@@ -153,7 +164,7 @@ export function useAppModel() {
   }
 
   async function onUndo() {
-    if (!currentGame || currentGame.moveHistory.length === 0) {
+    if (!currentGame || paused || currentGame.moveHistory.length === 0) {
       logEvent("game.undo.invalid", undefined, "error");
       await triggerInvalidFeedback(settings);
       return;
@@ -166,6 +177,8 @@ export function useAppModel() {
   async function restartGame() {
     const next = createNewGame(`${Date.now()}`);
     lastTrackedFinishRef.current = null;
+    pausedRemainingRef.current = null;
+    setPaused(false);
     setCurrentGame(next);
     logEvent("game.restart", { seed: next.seed });
     setStats((previous) => ({ ...previous, totalGames: previous.totalGames + 1 }));
@@ -197,9 +210,27 @@ export function useAppModel() {
     setSettings((previous) => ({ ...previous, [key]: value }));
   }
 
+  function togglePause() {
+    if (!currentGame || currentGame.status !== "playing") {
+      return;
+    }
+
+    if (!paused) {
+      pausedRemainingRef.current = moveDeadline ? Math.max(0, moveDeadline - Date.now()) : 20000;
+      setPaused(true);
+      logEvent("game.pause", { remainingMs: pausedRemainingRef.current });
+      return;
+    }
+
+    setPaused(false);
+    logEvent("game.resume", { remainingMs: pausedRemainingRef.current });
+  }
+
   function clearFinishedGame() {
     if (currentGame?.status !== "playing") {
       lastTrackedFinishRef.current = null;
+      pausedRemainingRef.current = null;
+      setPaused(false);
       setCurrentGame(null);
     }
   }
@@ -210,6 +241,7 @@ export function useAppModel() {
     settings,
     stats,
     currentGame,
+    paused,
     validMoves,
     performanceTier: currentGame ? getPerformanceTier(getScore(currentGame)) : null,
     startNewGame,
@@ -218,6 +250,7 @@ export function useAppModel() {
     onMove,
     onUndo,
     restartGame,
+    togglePause,
     updateSetting,
     clearFinishedGame,
     moveDeadline,

@@ -184,7 +184,7 @@ function Game({ model }: { model: ReturnType<typeof useAppModel> }) {
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!model.moveDeadline || game.status !== "playing") {
+    if (!model.moveDeadline || game.status !== "playing" || model.paused) {
       setTimeLeft(null);
       return;
     }
@@ -197,7 +197,7 @@ function Game({ model }: { model: ReturnType<typeof useAppModel> }) {
     tick();
     const interval = window.setInterval(tick, 250);
     return () => window.clearInterval(interval);
-  }, [game.status, model.moveDeadline]);
+  }, [game.status, model.moveDeadline, model.paused]);
 
   useEffect(() => {
     const lastMove = game.moveHistory[game.moveHistory.length - 1];
@@ -240,7 +240,7 @@ function Game({ model }: { model: ReturnType<typeof useAppModel> }) {
   }, []);
 
   function onPileClick(index: number) {
-    if (pendingMove) {
+    if (pendingMove || model.paused) {
       return;
     }
     if (selectedPileIndex === null) {
@@ -304,6 +304,13 @@ function Game({ model }: { model: ReturnType<typeof useAppModel> }) {
               <strong>{selectedPileIndex === null ? he.selectRightmost : he.chooseDestination}</strong>
             </div>
             <div className="utility-buttons">
+              <button
+                className={`mini-button ${model.paused ? "active" : ""}`}
+                onClick={model.togglePause}
+                type="button"
+              >
+                {model.paused ? he.resumeGame : he.pause}
+              </button>
               <button className="mini-button" onClick={() => setHelpOpen(true)} type="button">
                 {he.quickHelp}
               </button>
@@ -338,13 +345,13 @@ function Game({ model }: { model: ReturnType<typeof useAppModel> }) {
                     onClick={() => onPileClick(index)}
                     type="button"
                     style={moving}
+                    disabled={model.paused}
                   >
-                    <div className="pile-stack" style={{ height: `${102 + (pile.cards.length - 1) * 18}px` }}>
-                      {pile.cards.map((card, cardIndex) => (
-                        <div key={card.id} className="pile-card" style={{ top: `${cardIndex * 18}px` }}>
-                          <CardFace rank={card.rank} suit={suitMap[card.suit]} />
-                        </div>
-                      ))}
+                    <div className="pile-stack">
+                      <div className="pile-card">
+                        <CardFace rank={top.rank} suit={suitMap[top.suit]} />
+                      </div>
+                      {pile.cards.length > 1 ? <span className="pile-count">×{pile.cards.length}</span> : null}
                     </div>
                     <span className="pile-index">{top.rank + suitMap[top.suit]}</span>
                   </button>
@@ -352,10 +359,22 @@ function Game({ model }: { model: ReturnType<typeof useAppModel> }) {
               })}
             </div>
           </div>
+          {model.paused ? (
+            <div className="pause-cover">
+              <strong>{he.pauseCover}</strong>
+              <button className="premium-button pause-cover__button" onClick={model.togglePause} type="button">
+                {he.resumeGame}
+              </button>
+            </div>
+          ) : null}
         </main>
 
         <aside className="control-rail">
-          <button className="deck-button" onClick={model.onDealCard} disabled={game.deck.length === 0 || game.status !== "playing"}>
+          <button
+            className="deck-button"
+            onClick={model.onDealCard}
+            disabled={model.paused || game.deck.length === 0 || game.status !== "playing"}
+          >
             <CardBack />
             <div className="deck-copy">
               <strong>{game.deck.length}</strong>
@@ -374,8 +393,8 @@ function Game({ model }: { model: ReturnType<typeof useAppModel> }) {
             </div>
           </div>
           <div className="sidebar-actions">
-            <Button onClick={model.onUndo}>{he.undo}</Button>
-            <Button onClick={model.restartGame}>{he.restart}</Button>
+            <Button onClick={model.onUndo} disabled={model.paused}>{he.undo}</Button>
+            <Button onClick={model.restartGame} disabled={model.paused}>{he.restart}</Button>
           </div>
         </aside>
       </div>
