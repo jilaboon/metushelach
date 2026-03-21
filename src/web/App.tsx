@@ -145,6 +145,30 @@ function Results({ model }: { model: ReturnType<typeof useAppModel> }) {
     return null;
   }
 
+  async function onShare() {
+    const pilesLeft = model.currentGame?.piles.length ?? 0;
+    const baseMessage = `בדאלקום! שיחקתי ב"המשחק של סבתא נמרודי" ונשארתי עם ${pilesLeft} ערימות ♠️♥️♣️♦️\nנראה אותך עוברת את זה`;
+    const shareUrl = typeof window !== "undefined" ? window.location.href : "";
+    const shareText = shareUrl ? `${baseMessage}\n${shareUrl}` : baseMessage;
+
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share({
+          title: he.appName,
+          text: shareText,
+        });
+        return;
+      }
+    } catch {
+      return;
+    }
+
+    if (typeof window !== "undefined") {
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+      window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+    }
+  }
+
   return (
     <div className="results-modal">
       <div className="results-card">
@@ -152,6 +176,7 @@ function Results({ model }: { model: ReturnType<typeof useAppModel> }) {
         <p>{model.currentGame.status === "lost" ? he.tryAgain : model.performanceTier}</p>
         <strong>נשארו {model.currentGame.piles.length} ערימות</strong>
         <div className="results-actions">
+          <Button onClick={onShare}>{he.shareResult}</Button>
           <Button onClick={model.restartGame}>{he.replay}</Button>
           <Button
             onClick={() => {

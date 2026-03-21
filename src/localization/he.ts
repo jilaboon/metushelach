@@ -25,6 +25,7 @@ export const he = {
   bravo: "כל הכבוד",
   tryAgain: "נסו שוב בעדינות",
   replay: "שחקו שוב",
+  shareResult: "שתפו בוואטסאפ",
   sound: "צלילים",
   music: "מוזיקה",
   vibration: "רטט",
