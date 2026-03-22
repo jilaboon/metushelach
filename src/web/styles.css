@@ -140,7 +140,7 @@ body {
 }
 .topbar-stats {
   display: flex;
-  justify-content: flex-start;
+  justify-content: flex-end;
   gap: 10px;
 }
 .metric { text-align: center; }
@@ -152,6 +152,10 @@ body {
 .metric.timer strong {
   min-width: 2ch;
 }
+.metric.timer.danger strong,
+.metric.timer.danger span {
+  color: #ff6b6b;
+}
 
 .escape-button {
   min-height: 52px;
@@ -161,6 +165,7 @@ body {
   color: var(--text);
   font: inherit;
   font-weight: 700;
+  justify-self: start;
 }
 
 .landscape-shell {

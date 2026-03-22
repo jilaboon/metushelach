@@ -299,12 +299,6 @@ function Game({ model }: { model: ReturnType<typeof useAppModel> }) {
   return (
     <section className="screen screen-game">
       <header className="game-topbar">
-        <button className="escape-button" onClick={() => model.setScreen("home")} type="button">
-          {he.exitGame}
-        </button>
-        <div className="header-center">
-          <h1>{he.appName}</h1>
-        </div>
         <div className="topbar-stats">
           <div className="metric compact">
             <strong>{game.deck.length}</strong>
@@ -314,11 +308,17 @@ function Game({ model }: { model: ReturnType<typeof useAppModel> }) {
             <strong>{game.piles.length}</strong>
             <span>{he.pilesLeft}</span>
           </div>
-          <div className="metric compact timer">
+          <div className={`metric compact timer ${timeLeft !== null && timeLeft <= 5 ? "danger" : ""}`}>
             <strong>{timeLeft ?? "—"}</strong>
             <span>{he.timerLabel}</span>
           </div>
         </div>
+        <div className="header-center">
+          <h1>{he.appName}</h1>
+        </div>
+        <button className="escape-button" onClick={() => model.setScreen("home")} type="button">
+          {he.exitGame}
+        </button>
       </header>
 
       <div className="landscape-shell">
