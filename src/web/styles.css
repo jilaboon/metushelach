@@ -133,7 +133,7 @@ body {
 }
 .game-topbar {
   display: grid;
-  grid-template-columns: 110px 1fr 220px;
+  grid-template-columns: 220px 1fr 110px;
   align-items: center;
   gap: 12px;
   min-height: 88px;
@@ -596,7 +596,7 @@ body {
     border-radius: 28px;
   }
   .game-topbar {
-    grid-template-columns: 96px 1fr 190px;
+    grid-template-columns: 190px 1fr 96px;
   }
   .landscape-shell {
     grid-template-columns: minmax(0, 1fr) 228px;
@@ -637,7 +637,7 @@ body {
     gap: 10px;
   }
   .game-topbar {
-    grid-template-columns: 84px 1fr 152px;
+    grid-template-columns: 152px 1fr 84px;
     min-height: 60px;
     gap: 8px;
   }
