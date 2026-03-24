@@ -33,6 +33,7 @@ export function useAppModel() {
   const [currentGame, setCurrentGame] = useState<GameState | null>(null);
   const [moveDeadline, setMoveDeadline] = useState<number | null>(null);
   const [paused, setPaused] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
   const lastTrackedFinishRef = useRef<number | null>(null);
   const pausedRemainingRef = useRef<number | null>(null);
 
@@ -44,14 +45,32 @@ export function useAppModel() {
     logEvent("app.bootstrap", {
       hasSavedGame: Boolean(game),
     });
+    setIsHydrated(true);
 
     const timer = window.setTimeout(() => setScreen("home"), 900);
     return () => window.clearTimeout(timer);
   }, []);
 
-  useEffect(() => saveSettings(settings), [settings]);
-  useEffect(() => saveStats(stats), [stats]);
-  useEffect(() => saveGame(currentGame), [currentGame]);
+  useEffect(() => {
+    if (!isHydrated) {
+      return;
+    }
+    saveSettings(settings);
+  }, [isHydrated, settings]);
+
+  useEffect(() => {
+    if (!isHydrated) {
+      return;
+    }
+    saveStats(stats);
+  }, [isHydrated, stats]);
+
+  useEffect(() => {
+    if (!isHydrated) {
+      return;
+    }
+    saveGame(currentGame);
+  }, [currentGame, isHydrated]);
 
   useEffect(() => {
     if (!currentGame || currentGame.status === "playing" || !currentGame.finishedAt) {
