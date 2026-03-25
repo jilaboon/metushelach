@@ -28,49 +28,29 @@ export type AppScreen = "splash" | "home" | "game" | "settings";
 
 export function useAppModel() {
   const [screen, setScreen] = useState<AppScreen>("splash");
-  const [settings, setSettings] = useState<Settings>(defaultSettings);
-  const [stats, setStats] = useState<GameStats>(defaultStats);
-  const [currentGame, setCurrentGame] = useState<GameState | null>(null);
+  const [settings, setSettings] = useState<Settings>(() => loadSettings());
+  const [stats, setStats] = useState<GameStats>(() => loadStats());
+  const [currentGame, setCurrentGame] = useState<GameState | null>(() => {
+    const game = loadSavedGame();
+    return game ? finalizeIfFinished(game) : null;
+  });
   const [moveDeadline, setMoveDeadline] = useState<number | null>(null);
   const [paused, setPaused] = useState(false);
-  const [isHydrated, setIsHydrated] = useState(false);
   const lastTrackedFinishRef = useRef<number | null>(null);
   const pausedRemainingRef = useRef<number | null>(null);
 
   useEffect(() => {
-    setSettings(loadSettings());
-    setStats(loadStats());
-    const game = loadSavedGame();
-    setCurrentGame(game ? finalizeIfFinished(game) : null);
     logEvent("app.bootstrap", {
-      hasSavedGame: Boolean(game),
+      hasSavedGame: Boolean(currentGame),
     });
-    setIsHydrated(true);
 
     const timer = window.setTimeout(() => setScreen("home"), 900);
     return () => window.clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    saveSettings(settings);
-  }, [isHydrated, settings]);
-
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    saveStats(stats);
-  }, [isHydrated, stats]);
-
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-    saveGame(currentGame);
-  }, [currentGame, isHydrated]);
+  useEffect(() => saveSettings(settings), [settings]);
+  useEffect(() => saveStats(stats), [stats]);
+  useEffect(() => saveGame(currentGame), [currentGame]);
 
   useEffect(() => {
     if (!currentGame || currentGame.status === "playing" || !currentGame.finishedAt) {
