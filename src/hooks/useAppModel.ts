@@ -192,8 +192,8 @@ export function useAppModel() {
     setStats((previous) => ({
       bestPiles: previous.bestPiles === null ? score : Math.min(previous.bestPiles, score),
       totalGames: previous.totalGames,
-      perfectWins: previous.perfectWins + (score === 1 ? 1 : 0),
-      currentStreak: score <= 5 ? previous.currentStreak + 1 : 0,
+      lostGames: previous.lostGames + (game.status === "lost" ? 1 : 0),
+      currentStreak: game.status !== "lost" && score <= 5 ? previous.currentStreak + 1 : 0,
     }));
     if (score === 1) {
       await triggerPerfectFeedback(settings);

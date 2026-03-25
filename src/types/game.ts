@@ -50,7 +50,7 @@ export type GameState = {
 export type GameStats = {
   bestPiles: number | null;
   totalGames: number;
-  perfectWins: number;
+  lostGames: number;
   currentStreak: number;
 };
 

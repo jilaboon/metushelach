@@ -96,8 +96,8 @@ function Home({ model }: { model: ReturnType<typeof useAppModel> }) {
           <strong>{model.stats.totalGames}</strong>
         </div>
         <div className="stat-card">
-          <span>{he.perfectWins}</span>
-          <strong>{model.stats.perfectWins}</strong>
+          <span>{he.lostGames}</span>
+          <strong>{model.stats.lostGames}</strong>
         </div>
       </div>
     </section>

@@ -5,7 +5,7 @@ export const he = {
   settings: "הגדרות",
   bestResult: "התוצאה הטובה ביותר",
   totalGames: "משחקים ששוחקו",
-  perfectWins: "ניצחונות מושלמים",
+  lostGames: "משחקים שהפסדתם",
   currentStatus: "מצב נוכחי",
   pilesLeft: "ערימות",
   deck: "חפיסה",

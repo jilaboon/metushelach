@@ -29,7 +29,7 @@ export const defaultSettings: Settings = {
 export const defaultStats: GameStats = {
   bestPiles: null,
   totalGames: 0,
-  perfectWins: 0,
+  lostGames: 0,
   currentStreak: 0,
 };
 
@@ -56,7 +56,12 @@ export function saveSettings(settings: Settings) {
 }
 
 export function loadStats() {
-  return readJson<GameStats>(KEYS.stats, defaultStats);
+  const raw = readJson<Partial<GameStats> & { perfectWins?: number }>(KEYS.stats, defaultStats);
+  return {
+    ...defaultStats,
+    ...raw,
+    lostGames: raw.lostGames ?? 0,
+  };
 }
 
 export function saveStats(stats: GameStats) {
