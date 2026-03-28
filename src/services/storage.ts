@@ -37,7 +37,10 @@ const KEYS = {
   game: "savta-nimrodi/game",
   stats: "savta-nimrodi/stats",
   settings: "savta-nimrodi/settings",
+  statsBestResetVersion: "savta-nimrodi/stats-best-reset-version",
 };
+
+const BEST_RESULT_RESET_VERSION = "2026-03-28";
 
 function readJson<T>(key: string, fallback: T): T {
   const raw = getStorage().getItem(key);
@@ -56,12 +59,29 @@ export function saveSettings(settings: Settings) {
 }
 
 export function loadStats() {
+  const storage = getStorage();
   const raw = readJson<Partial<GameStats> & { perfectWins?: number }>(KEYS.stats, defaultStats);
-  return {
+  const stats = {
     ...defaultStats,
     ...raw,
     lostGames: raw.lostGames ?? 0,
   };
+
+  // One-time migration: reset only the best-result counter after the corrupted-save bug.
+  if (storage.getItem(KEYS.statsBestResetVersion) !== BEST_RESULT_RESET_VERSION) {
+    const migrated = {
+      ...stats,
+      bestPiles: null,
+    };
+    storage.setItem(KEYS.statsBestResetVersion, BEST_RESULT_RESET_VERSION);
+    storage.setItem(KEYS.stats, JSON.stringify(migrated));
+    logEvent("storage.stats.best_reset_migration", {
+      version: BEST_RESULT_RESET_VERSION,
+    });
+    return migrated;
+  }
+
+  return stats;
 }
 
 export function saveStats(stats: GameStats) {
